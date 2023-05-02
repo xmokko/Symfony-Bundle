@@ -67,7 +67,9 @@ class Manager
             $dbReport->setOutput(implode("\n", (array) $report->getOutput()));
             $dbReport->setError(implode("\n", (array) $report->getError()));
             $dbReport->setExitCode($report->getJob()->getProcess()->getExitCode());
-            $dbReport->setRunAt(\DateTime::createFromFormat('U.u', number_format($report->getStartTime(), 6, '.', '')));
+            $runAtUTC = \DateTime::createFromFormat('U.u', number_format($report->getStartTime(), 6, '.', ''));
+            $timeZone = new \DateTimeZone(getenv('TZ') ?: date_default_timezone_get());
+            $dbReport->setRunAt($runAtUTC->setTimezone($timeZone));
             $dbReport->setRunTime($report->getEndTime() - $report->getStartTime());
             $this->manager->persist($dbReport);
         }
